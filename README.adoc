@@ -1,0 +1,42 @@
+= fa-proxy
+David Polverari <david.polverari@gmail.com>
+
+A basic HTTP server for harversting proxy credentials through Basic Auth
+phishing, intended for penetration testing usage. It is meant to be used
+when users are behind an authenticated proxy, to enable the collection of their
+credentials to be used later, as in a Meterpreter payload, for example.
+
+== Installation
+Just copy the file `fa-proxy` to /usr/local/bin or any other directory on your
+path.
+
+== Usage
+[listing]
+----
+usage: fa-proxy [-h] [-l HOST] [-p PORT] [-t TIMES] url msg
+
+Uses HTTP Basic Auth to phish user credentials.
+
+positional arguments:
+  url                   the url the user will be redirected to
+  msg                   message to be displayed to the user
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l HOST, --listen HOST
+                        host the server should listen on
+  -p PORT, --port PORT  port the server should listen on
+  -t TIMES, --times TIMES
+                        number of times the credential will be asked
+----
+
+=== Example:
+
+[listing]
+----
+# fa-proxy "http://www.microsoft.com" "The proxy at example.com needs
+authentication. Enter your username and password" -p 80 -t 3
+----
+
+== License
+This program is licensed under the GNU GPLv3.
