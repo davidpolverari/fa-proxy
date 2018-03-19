@@ -42,12 +42,20 @@ optional arguments:
                         number of times the credential will be asked
 ----
 
-=== Example:
+=== Example
+After your physical recon, you know the message the proxy displays to the user
+at the *example.com* target company.
+
+To phish an user that is behind an authenticated proxy, you can set up a domain
+called gmai1.com, for example, and send him an e-mail with a link to this
+server. You may want the user to make two more fake authentication tries
+besides the one that allowed him to visit your phishing website. To do this,
+you can use the following example:
 
 [listing]
 ----
-# fa-proxy "http://www.microsoft.com" "The proxy at example.com needs
-authentication. Enter your username and password" -p 80 -t 3
+# fa-proxy "https://www.gmail.com" "The proxy at example.com needs
+authentication. Enter your username and password." -p 80 -t 2
 ----
 
 == License
