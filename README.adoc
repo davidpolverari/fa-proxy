@@ -7,8 +7,20 @@ when users are behind an authenticated proxy, to enable the collection of their
 credentials to be used later, as in a Meterpreter payload, for example.
 
 == Installation
-Just copy the file `fa-proxy` to /usr/local/bin or any other directory on your
-path.
+To install fa-proxy system-wide, you can use `setup.py`:
+
+[listing]
+----
+$ sudo python3 setup.py install
+----
+
+If you wish to specify the directory where it should be installed, use the
+ `--prefix` switch:
+
+[listing]
+----
+$ sudo python3 setup.py install --prefix=/usr/local
+----
 
 == Usage
 [listing]
